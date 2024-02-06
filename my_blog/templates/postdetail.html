@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}
+    Post Detail
+{% endblock %}
+
+{% block body %}
+    <div class="container px-auto">
+
+        <div class="card shadow p-3">
+            {% if post.image %}
+            <img src="{{post.image.url}}" style="width:500px;" class="card-img-top">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{post.title}}</h5>
+                <p class="card-text">{{post.content}}</p>
+                <p class="card-text">{{post.create_date|naturaltime}}/{{post.author}}/{{post.category}}</p>
+
+                {% if user.is_superuser %}
+                <a href="/blog/update/{{post.id}}/" class="btn btn-info">Update</a>
+                <a href="/blog/delete/{{post.id}}/" onclick="return confirm('Are you sure?')" class="btn btn-danger">Delete</a>
+                {% elif post.author.id == user.id %}
+                <a href="/blog/update/{{post.id}}/" class="btn btn-info">Update</a>
+                <a href="/blog/delete/{{post.id}}/" onclick="return confirm('Are you sure?')"  class="btn btn-danger">Delete</a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card shadow p-3">
+            {% for c in cmt %}
+            <div id="cmt" class="card mb-3 shadow">
+                <div style="padding-left: 10px;" class="card-title">
+                    <div class="card-title pl-2">
+                        <b>{{c.author}}</b>
+                    </div>
+                    <div class="card-body">
+                        {{c.content|linebreaks}}
+                    </div>
+                    <div class="card-footer d-flex justify-content-between">
+                        <div>{{c.create_date}}</div>
+                        {% if c.author.id == user.id %}
+                        <div>
+                            <a href="/blog/cmt/update/{{post.id}}/{{c.id}}/" class="btn btn-warning"> Update </a>
+                            <a href="/blog/cmt/delete/{{post.id}}/{{c.id}}/" onclick="return confirm('Are you sure?')"  class="btn btn-danger"> Delete </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <form method="POST" class="card-shadow p-3">
+            {% csrf_token %}
+            <textarea name="content" required style="height: 130px;" class="form-control"></textarea>
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary"> Submit </button>
+            </div>
+        </form>
+
+    </div>
+{% endblock %}
